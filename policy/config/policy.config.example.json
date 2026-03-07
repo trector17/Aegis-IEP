@@ -1,0 +1,111 @@
+{
+  "_comment": "This is the example/default config. Copy this file to policy/config/policy.config.json and tune it for your repo. policy.config.json is gitignored and must never be committed.",
+
+  "baseline": {
+    "required_paths": [
+      "governance/ENGINEERING_CONTRACT.md",
+      "governance/AI_WORKFORCE_CONTRACT.md",
+      "governance/PHASES.md",
+      "governance/PATCH_TEMPLATE.md",
+      "governance/PATCH_LOG.md",
+      "policy/README.md",
+      "policy/config/policy.config.example.json",
+      "policy/scripts/check-layer-drift.mjs",
+      "policy/scripts/check-derived-data.mjs",
+      "policy/scripts/check-repo-baseline.mjs",
+      "policy/scripts/run-all.mjs",
+      "templates/PRD_TEMPLATE.md",
+      "templates/ARCHITECTURE_TEMPLATE.md",
+      "templates/ADR_TEMPLATE.md",
+      "runbooks/BOOTSTRAP_NEW_PROJECT.md",
+      "runbooks/ADOPT_AEGIS.md",
+      ".github/pull_request_template.md",
+      ".github/workflows/pr-gates.yml",
+      ".gitignore",
+      "LICENSE",
+      "README.md"
+    ]
+  },
+
+  "scan": {
+    "extensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py"],
+    "ignore_dirs": [
+      "node_modules",
+      ".git",
+      "dist",
+      "build",
+      ".next",
+      ".turbo",
+      "coverage"
+    ]
+  },
+
+  "layers": [
+    {
+      "name": "domain",
+      "path_prefix": "src/domain"
+    },
+    {
+      "name": "application",
+      "path_prefix": "src/application"
+    },
+    {
+      "name": "infrastructure",
+      "path_prefix": "src/infrastructure"
+    },
+    {
+      "name": "api",
+      "path_prefix": "src/app/api"
+    },
+    {
+      "name": "ui",
+      "path_prefix": "src/components"
+    }
+  ],
+
+  "forbidden_dependencies": [
+    {
+      "from": "domain",
+      "to": "infrastructure",
+      "reason": "Domain must not depend on persistence. It defines pure business rules and entities."
+    },
+    {
+      "from": "domain",
+      "to": "api",
+      "reason": "Domain must not depend on HTTP transport. It is framework-agnostic."
+    },
+    {
+      "from": "domain",
+      "to": "ui",
+      "reason": "Domain must not depend on UI. Presentation concerns are strictly above the domain."
+    },
+    {
+      "from": "application",
+      "to": "ui",
+      "reason": "Application services orchestrate business logic and must not depend on UI components."
+    }
+  ],
+
+  "derived_data_patterns": [
+    {
+      "name": "persisted_percent_complete",
+      "pattern": "percentComplete\\s*[:=].*(?:save|insert|update|persist|store|write)",
+      "message": "percentComplete appears to be persisted. Completion percentage is a derived field — always compute it, never store it."
+    },
+    {
+      "name": "persisted_completion_percentage",
+      "pattern": "completion_percentage\\s*[:=]",
+      "message": "completion_percentage is a derived value and must not be stored in the database or state."
+    },
+    {
+      "name": "persisted_aggregate_status",
+      "pattern": "aggregateStatus\\s*[:=].*(?:save|insert|update|persist|store|write)",
+      "message": "aggregateStatus appears to be persisted. Aggregate status must be computed at read time, not stored."
+    },
+    {
+      "name": "persisted_derived_counter",
+      "pattern": "(?:taskCount|completedCount|totalTasks)\\s*[:=].*(?:save|insert|update|persist|store|write)",
+      "message": "Derived counters (taskCount, completedCount, totalTasks) must not be stored. Compute them from source data."
+    }
+  ]
+}
