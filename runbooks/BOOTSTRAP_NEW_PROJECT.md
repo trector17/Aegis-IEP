@@ -2,6 +2,8 @@
 
 This runbook describes how to create a brand-new repository that is governed by Aegis from day one.
 
+> **Prerequisite:** Do not bootstrap a product repo before Aegis v1.0 readiness is formally declared. See [governance/V1_READINESS.md](governance/V1_READINESS.md).
+
 ---
 
 ## Recommended Path: GitHub Template Repo

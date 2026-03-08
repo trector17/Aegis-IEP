@@ -93,6 +93,14 @@ Future Aegis updates should be applied intentionally — reviewed, documented as
 
 ---
 
+## v1 Readiness
+
+Aegis is progressing toward a stable v1.0 declaration. Aegis-powered product repos do not begin until v1 readiness criteria are met and v1.0 is formally declared.
+
+v1 readiness criteria are defined in [governance/V1_READINESS.md](governance/V1_READINESS.md).
+
+---
+
 ## Phase 0 Scope
 
 Phase 0 establishes the Aegis Project Kit. It is the prerequisite for all product work.
