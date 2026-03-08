@@ -26,9 +26,9 @@ Aegis is stack-agnostic. It requires only Node.js 20+ for its policy scripts and
 |---|---|
 | `governance/` | Engineering Contract, AI Workforce Contract, Phase definitions, Patch template, Patch log |
 | `policy/` | Policy scripts, example config, README |
-| `templates/` | PRD template, Architecture template, ADR template |
+| `templates/` | PRD template, Architecture template, ADR template, Project bootstrap checklist |
 | `runbooks/` | Bootstrap new project, Adopt Aegis into existing repo |
-| `.github/` | PR template, CI workflow (`pr-gates`) |
+| `.github/` | PR template, CI workflow (`pr-gates`), reusable gate workflow for downstream repos |
 
 ---
 
