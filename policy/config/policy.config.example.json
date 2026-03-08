@@ -14,6 +14,7 @@
       "policy/scripts/check-layer-drift.mjs",
       "policy/scripts/check-derived-data.mjs",
       "policy/scripts/check-repo-baseline.mjs",
+      "policy/scripts/check-governance-files.mjs",
       "policy/scripts/run-all.mjs",
       "templates/PRD_TEMPLATE.md",
       "templates/ARCHITECTURE_TEMPLATE.md",
