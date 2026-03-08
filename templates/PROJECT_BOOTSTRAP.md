@@ -101,7 +101,10 @@ Once confirmed, you may merge and delete the test branch.
 - [ ] No secrets committed (verify with `git log -p | grep -i "secret\|token\|password\|key"` — expect no results)
 - [ ] Team has read `governance/ENGINEERING_CONTRACT.md`
 - [ ] First real PR uses the `.github/pull_request_template.md` format
-- [ ] Bootstrap patch entry added to `governance/PATCH_LOG.md`
+- [ ] Bootstrap patch entry added to `governance/PATCH_LOG.md` including:
+  - Aegis version adopted (from `governance/VERSION.md` in the Aegis repo)
+  - Adoption date
+  - Initial governance/policy customizations (layers defined, forbidden deps configured, derived data patterns added)
 
 ---
 

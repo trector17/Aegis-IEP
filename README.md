@@ -82,6 +82,16 @@ Both paths result in:
 
 ---
 
+## Versioning
+
+Aegis is versioned governance infrastructure. The current version is tracked in [`governance/VERSION.md`](governance/VERSION.md).
+
+When a downstream repo adopts Aegis, it should record the adopted version, adoption date, and any local policy customizations. This creates a clear reference point for future governance upgrades.
+
+Future Aegis updates should be applied intentionally — reviewed, documented as a patch, and verified — not copied ad hoc.
+
+---
+
 ## Phase 0 Scope
 
 Phase 0 establishes the Aegis Project Kit. It is the prerequisite for all product work.

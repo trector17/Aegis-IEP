@@ -130,6 +130,18 @@ In your repo: **Settings → Branches → Add branch protection rule** for `main
 
 ---
 
+## Step 5 — Record the Adopted Aegis Version
+
+In your repo's first governance patch entry (`governance/PATCH_LOG.md`), record:
+
+- **Aegis version adopted:** (check `governance/VERSION.md` in the Aegis repo at adoption time)
+- **Adoption date:** YYYY-MM-DD
+- **Deviations from baseline:** any governance rules you did not adopt, any layers you renamed, any patterns you skipped
+
+This record is your baseline for any future Aegis governance upgrade. Upgrades should be applied deliberately, not copied ad hoc.
+
+---
+
 ## Validation Checklist
 
 - [ ] `node policy/scripts/run-all.mjs` exits 0 locally
@@ -140,3 +152,4 @@ In your repo: **Settings → Branches → Add branch protection rule** for `main
 - [ ] All derived data violations from `check-derived-data.mjs` have been fixed in code
 - [ ] Team has reviewed `governance/ENGINEERING_CONTRACT.md`
 - [ ] First PR uses the new PR template format
+- [ ] Adopted Aegis version and customizations recorded in `governance/PATCH_LOG.md`

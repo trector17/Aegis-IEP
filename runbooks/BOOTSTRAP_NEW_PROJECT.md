@@ -121,6 +121,18 @@ The status check name `pr-gates` is the exact `jobs` key in `.github/workflows/p
 
 ---
 
+## Step 6 — Record the Adopted Aegis Version
+
+In your new repo, note the following in your first `governance/PATCH_LOG.md` entry:
+
+- **Aegis version adopted:** (check `governance/VERSION.md` in the Aegis repo at adoption time)
+- **Adoption date:** YYYY-MM-DD
+- **Major local customizations:** list any layer definitions, forbidden dependency rules, or derived data patterns you configured in `policy.config.json`
+
+This record is your baseline for any future governance upgrade.
+
+---
+
 ## First PR Checklist
 
 Before merging the first PR into `main` on your new repo, verify:
@@ -131,4 +143,4 @@ Before merging the first PR into `main` on your new repo, verify:
 - [ ] `policy/config/policy.config.json` is NOT committed (check `git status`)
 - [ ] No secrets or env values are committed
 - [ ] PR uses the `.github/pull_request_template.md` format
-- [ ] `governance/PATCH_LOG.md` has an entry for the bootstrap patch
+- [ ] `governance/PATCH_LOG.md` has an entry for the bootstrap patch with Aegis version recorded
