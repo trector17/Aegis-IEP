@@ -73,6 +73,13 @@ node policy/scripts/run-all.mjs
 
 Add additional commands specific to this patch.
 
+## Governance-Sensitive Files Touched
+
+Did this patch modify any files classified as governance-sensitive in `governance/GOVERNANCE_SENSITIVE_FILES.md`?
+
+- None
+- or list: `governance/...`, `policy/...`, `.github/workflows/...`, `.github/pull_request_template.md`
+
 ## Governance Impact
 
 Does this patch change any rules, constraints, or enforcement behavior? If yes, describe the before/after.
