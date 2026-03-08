@@ -109,3 +109,5 @@ node policy/scripts/check-derived-data.mjs
 ```
 
 Node.js 20+ is required. No npm install needed.
+
+CI initialization test
