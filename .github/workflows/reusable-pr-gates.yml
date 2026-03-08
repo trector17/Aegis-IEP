@@ -1,0 +1,33 @@
+name: Reusable PR Gates
+
+# Reusable workflow for repos powered by Aegis.
+# Call this from your repo's own pr-gates workflow instead of duplicating the check logic.
+#
+# Usage in a downstream repo:
+#
+#   jobs:
+#     pr-gates:
+#       uses: trector17/Aegis-IEP/.github/workflows/reusable-pr-gates.yml@main
+#
+# Note: This workflow does NOT replace the Aegis-local pr-gates.yml.
+# The Aegis repo uses pr-gates.yml directly. This file is for downstream consumers.
+
+on:
+  workflow_call:
+
+jobs:
+  pr-gates:
+    name: pr-gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Aegis policy checks
+        run: node policy/scripts/run-all.mjs
