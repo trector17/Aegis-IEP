@@ -14,6 +14,14 @@
 
 ---
 
+## Path to v1.0
+
+The current version is pre-v1.0. Aegis is progressing toward a stable v1.0 declaration through Phase 0 hardening patches. v1 readiness criteria are defined in [governance/V1_READINESS.md](governance/V1_READINESS.md).
+
+No Aegis-powered product repo begins before v1.0 is formally declared.
+
+---
+
 ## Versioning Notes
 
 **For downstream repos:** Record the Aegis version you adopted at bootstrap time (see `templates/PROJECT_BOOTSTRAP.md` and the adoption runbooks). This creates a clear reference point for any future governance upgrades.

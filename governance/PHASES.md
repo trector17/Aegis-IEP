@@ -91,6 +91,14 @@ The required status check name (`pr-gates`) must exactly match the `jobs.<job-id
 
 ---
 
+## v1 Readiness Gate
+
+Phase 0 hardening patches may continue after Phase 0's initial exit criteria are met. All hardening patches follow the same patch process and are tracked in `governance/PATCH_LOG.md`.
+
+No product work begins — in this repo or in any Aegis-powered downstream repo — until Aegis v1.0 readiness is formally declared. See [governance/V1_READINESS.md](governance/V1_READINESS.md) for the full checklist and declaration criteria.
+
+---
+
 ## Future Phases
 
-Future phases are defined when Phase 0 exits cleanly. They are not scoped here. Each phase will follow the same structure: deliverables, in-scope, out-of-scope, exit criteria.
+Future phases are defined when Phase 0 exits cleanly and v1 readiness is declared. They are not scoped here. Each phase will follow the same structure: deliverables, in-scope, out-of-scope, exit criteria.

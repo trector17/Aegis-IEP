@@ -9,6 +9,7 @@
       "governance/PATCH_TEMPLATE.md",
       "governance/PATCH_LOG.md",
       "governance/GOVERNANCE_SENSITIVE_FILES.md",
+      "governance/V1_READINESS.md",
       "policy/README.md",
       "policy/config/policy.config.example.json",
       "policy/scripts/check-layer-drift.mjs",
