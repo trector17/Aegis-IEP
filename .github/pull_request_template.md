@@ -62,6 +62,13 @@ Output:
 (paste output here)
 ```
 
+## Governance-Sensitive Files Touched
+
+<!-- Did this PR modify any files classified in governance/GOVERNANCE_SENSITIVE_FILES.md? -->
+<!-- governance/**, policy/**, .github/workflows/pr-gates.yml, .github/workflows/reusable-pr-gates.yml, .github/pull_request_template.md -->
+
+- None / or list files:
+
 ## Governance Impact
 
 <!-- Does this PR change any rules, enforcement behavior, or architecture constraints? -->

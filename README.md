@@ -41,6 +41,7 @@ All governance rules are in `governance/`. These documents are version-controlle
 - [governance/PHASES.md](governance/PHASES.md) — phase definitions and exit criteria
 - [governance/PATCH_TEMPLATE.md](governance/PATCH_TEMPLATE.md) — how to document any structural change
 - [governance/PATCH_LOG.md](governance/PATCH_LOG.md) — record of every patch applied
+- [governance/GOVERNANCE_SENSITIVE_FILES.md](governance/GOVERNANCE_SENSITIVE_FILES.md) — files that require explicit documentation when changed
 
 ---
 

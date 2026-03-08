@@ -112,7 +112,23 @@ The following security rules are non-negotiable and apply to all repos powered b
 
 ---
 
-## 8. Governance Changes Require a Documented Patch
+## 8. Governance-Sensitive Files
+
+Certain files carry higher risk when changed and require explicit documentation. These files are defined in `governance/GOVERNANCE_SENSITIVE_FILES.md` and include:
+
+- All files under `governance/` and `policy/`
+- CI workflow files (`.github/workflows/pr-gates.yml`, `.github/workflows/reusable-pr-gates.yml`)
+- The PR template (`.github/pull_request_template.md`)
+
+**Rules:**
+- Any change to a governance-sensitive file must be explicitly named in the patch scope
+- The risk assessment must address enforcement impact
+- The governance impact section must document the before/after of any rule change
+- Such changes should be rare, intentional, and minimal
+
+---
+
+## 9. Governance Changes Require a Documented Patch
 
 Any modification to this contract or any governance document in `governance/` must:
 
