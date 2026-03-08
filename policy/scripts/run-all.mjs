@@ -3,9 +3,10 @@
  * run-all.mjs
  *
  * Stable policy entrypoint. Runs all Aegis policy checks in order:
- *   1. check-repo-baseline   — required kit files exist
- *   2. check-layer-drift     — no forbidden cross-layer imports
- *   3. check-derived-data    — no persisted derived/computed values
+ *   1. check-repo-baseline      — required kit files exist
+ *   2. check-layer-drift        — no forbidden cross-layer imports
+ *   3. check-derived-data       — no persisted derived/computed values
+ *   4. check-governance-files   — governance-sensitive changes are documented in PR
  *
  * Stops on first failure. Exits non-zero if any check fails.
  * Exits zero only when all checks pass.
@@ -20,9 +21,10 @@ import { resolve } from 'path'
 const SCRIPTS_DIR = resolve(process.cwd(), 'policy/scripts')
 
 const CHECKS = [
-  { name: 'baseline',     script: 'check-repo-baseline.mjs' },
-  { name: 'layer-drift',  script: 'check-layer-drift.mjs'   },
-  { name: 'derived-data', script: 'check-derived-data.mjs'  }
+  { name: 'baseline',           script: 'check-repo-baseline.mjs'    },
+  { name: 'layer-drift',        script: 'check-layer-drift.mjs'      },
+  { name: 'derived-data',       script: 'check-derived-data.mjs'     },
+  { name: 'governance-files',   script: 'check-governance-files.mjs' }
 ]
 
 function run(check) {
