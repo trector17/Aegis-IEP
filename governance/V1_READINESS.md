@@ -65,12 +65,14 @@ The following are explicitly out of scope for v1.0 and may be addressed in later
 
 ## How v1 Readiness Is Declared
 
-v1.0 is declared when:
+Meeting the checklist above does not automatically declare v1.0. Readiness criteria being met is a necessary condition, not a sufficient one. v1.0 becomes official only through a formal declaration artifact.
+
+The declaration process:
 
 1. All checklist items above are marked complete
-2. A patch is applied incrementing `governance/VERSION.md` to `1.0.0`
-3. The patch is documented in `governance/PATCH_LOG.md`
+2. The declaration template at [governance/V1_DECLARATION_TEMPLATE.md](governance/V1_DECLARATION_TEMPLATE.md) is filled out and committed as `governance/V1_DECLARATION.md`
+3. A patch increments `governance/VERSION.md` to `1.0.0` and documents the declaration in `governance/PATCH_LOG.md`
 4. `node policy/scripts/run-all.mjs` exits 0 from the Aegis repo root
 5. The declaration patch passes CI and merges to `main`
 
-After declaration, product repos powered by Aegis may begin using the `runbooks/BOOTSTRAP_NEW_PROJECT.md` runbook.
+After the declaration patch merges, product repos powered by Aegis may begin using the `runbooks/BOOTSTRAP_NEW_PROJECT.md` runbook.
