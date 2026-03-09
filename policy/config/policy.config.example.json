@@ -11,6 +11,7 @@
       "governance/GOVERNANCE_SENSITIVE_FILES.md",
       "governance/V1_READINESS.md",
       "governance/V1_DECLARATION_TEMPLATE.md",
+      "governance/POWERED_BY_AEGIS.md",
       "policy/README.md",
       "policy/config/policy.config.example.json",
       "policy/scripts/check-layer-drift.mjs",

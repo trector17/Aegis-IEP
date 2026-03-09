@@ -67,6 +67,14 @@ Policy rules are configured in `policy/config/policy.config.json` (local, gitign
 
 ---
 
+## What "Powered by Aegis" Means
+
+"Powered by Aegis" is a governance status — not a label applied at file copy time. A repo qualifies only when governance artifacts are adopted, policy enforcement is active in CI, branch protection is merge-blocking, and the adopted Aegis version is recorded.
+
+The formal definition and minimum requirements are in [governance/POWERED_BY_AEGIS.md](governance/POWERED_BY_AEGIS.md).
+
+---
+
 ## How Future Repos Become Powered by Aegis
 
 There are two adoption paths:

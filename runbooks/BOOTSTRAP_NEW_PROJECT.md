@@ -146,3 +146,5 @@ Before merging the first PR into `main` on your new repo, verify:
 - [ ] No secrets or env values are committed
 - [ ] PR uses the `.github/pull_request_template.md` format
 - [ ] `governance/PATCH_LOG.md` has an entry for the bootstrap patch with Aegis version recorded
+
+When all items above are verified, the repo meets the minimum requirements to be considered Powered by Aegis. See [governance/POWERED_BY_AEGIS.md](governance/POWERED_BY_AEGIS.md) for the full definition.
