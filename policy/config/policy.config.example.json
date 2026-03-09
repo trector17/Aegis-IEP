@@ -28,7 +28,8 @@
       ".github/workflows/pr-gates.yml",
       ".gitignore",
       "LICENSE",
-      "README.md"
+      "README.md",
+      "aegis.json"
     ]
   },
 

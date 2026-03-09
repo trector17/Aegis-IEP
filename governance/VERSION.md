@@ -1,7 +1,7 @@
 # Aegis Version
 
-**Version:** 0.1.1
-**Status:** Active
+**Version:** 0.1.7
+**Status:** Pre-v1
 **Release date:** YYYY-MM-DD
 
 ---

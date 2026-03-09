@@ -140,4 +140,10 @@ node policy/scripts/check-derived-data.mjs
 
 Node.js 20+ is required. No npm install needed.
 
+---
+
+## Platform Metadata
+
+Aegis includes a machine-readable platform metadata file at [`aegis.json`](aegis.json). It records the platform name, current version, and status. This supports downstream tooling and platform identification without parsing governance documents.
+
 CI initialization test
