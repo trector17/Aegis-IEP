@@ -18,6 +18,8 @@
 
 The current version is pre-v1.0. Aegis is progressing toward a stable v1.0 declaration through Phase 0 hardening patches. v1 readiness criteria are defined in [governance/V1_READINESS.md](governance/V1_READINESS.md).
 
+Meeting the readiness criteria does not automatically declare v1.0. A formal declaration artifact must be produced using [governance/V1_DECLARATION_TEMPLATE.md](governance/V1_DECLARATION_TEMPLATE.md) and committed as `governance/V1_DECLARATION.md` via a standalone governance patch. This file's version field is incremented to `1.0.0` only at that point.
+
 No Aegis-powered product repo begins before v1.0 is formally declared.
 
 ---
