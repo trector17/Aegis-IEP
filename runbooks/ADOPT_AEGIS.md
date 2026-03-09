@@ -153,3 +153,5 @@ This record is your baseline for any future Aegis governance upgrade. Upgrades s
 - [ ] Team has reviewed `governance/ENGINEERING_CONTRACT.md`
 - [ ] First PR uses the new PR template format
 - [ ] Adopted Aegis version and customizations recorded in `governance/PATCH_LOG.md`
+
+When all items above are verified, the repo meets the minimum requirements to be considered Powered by Aegis. Copying files alone is not sufficient — all controls must be active. See [governance/POWERED_BY_AEGIS.md](governance/POWERED_BY_AEGIS.md) for the full definition.
