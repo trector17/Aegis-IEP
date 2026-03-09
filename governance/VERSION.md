@@ -1,8 +1,8 @@
 # Aegis Version
 
-**Version:** 0.1.7
-**Status:** Pre-v1
-**Release date:** YYYY-MM-DD
+**Version:** 1.0.0
+**Status:** Stable
+**Release date:** 2026-03-09
 
 ---
 
@@ -11,16 +11,21 @@
 - Full Phase 0 kit: governance docs, policy scripts, CI gates, PR template, runbooks, templates
 - `templates/PROJECT_BOOTSTRAP.md` — bootstrap checklist for newly created Aegis-powered repos
 - `.github/workflows/reusable-pr-gates.yml` — reusable gate workflow for downstream repos
+- `governance/GOVERNANCE_SENSITIVE_FILES.md` — sensitive file classification and change discipline
+- `governance/V1_READINESS.md` — v1 readiness checklist and declaration process
+- `governance/V1_DECLARATION_TEMPLATE.md` — template for formal v1 declaration
+- `governance/V1_DECLARATION.md` — formal declaration of Aegis v1.0.0 (this release)
+- `governance/POWERED_BY_AEGIS.md` — definition of Powered-by-Aegis governance status
+- `aegis.json` — machine-readable platform metadata
+- `policy/scripts/check-governance-files.mjs` — mechanical enforcement for governance-sensitive changes
 
 ---
 
-## Path to v1.0
+## v1.0.0 Declaration
 
-The current version is pre-v1.0. Aegis is progressing toward a stable v1.0 declaration through Phase 0 hardening patches. v1 readiness criteria are defined in [governance/V1_READINESS.md](governance/V1_READINESS.md).
+Aegis v1.0.0 is formally declared stable and adoptable as of 2026-03-09. The formal declaration artifact is at [governance/V1_DECLARATION.md](governance/V1_DECLARATION.md).
 
-Meeting the readiness criteria does not automatically declare v1.0. A formal declaration artifact must be produced using [governance/V1_DECLARATION_TEMPLATE.md](governance/V1_DECLARATION_TEMPLATE.md) and committed as `governance/V1_DECLARATION.md` via a standalone governance patch. This file's version field is incremented to `1.0.0` only at that point.
-
-No Aegis-powered product repo begins before v1.0 is formally declared.
+Aegis-powered product repos may now begin using the `runbooks/BOOTSTRAP_NEW_PROJECT.md` runbook.
 
 ---
 

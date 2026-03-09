@@ -101,12 +101,11 @@ Future Aegis updates should be applied intentionally — reviewed, documented as
 
 ---
 
-## v1 Readiness
+## v1.0.0 — Formally Declared Stable
 
-Aegis is progressing toward a stable v1.0 declaration. Aegis-powered product repos do not begin until v1 readiness criteria are met and v1.0 is formally declared.
+Aegis v1.0.0 is formally declared stable as of 2026-03-09. Aegis-powered product repos may now begin using the bootstrap runbook.
 
-v1 readiness criteria and declaration mechanics are both part of governance. Meeting the readiness checklist does not declare v1 — a formal declaration artifact is required. Aegis is not officially v1 until that declaration is committed and merged.
-
+- Formal declaration: [governance/V1_DECLARATION.md](governance/V1_DECLARATION.md)
 - Readiness criteria: [governance/V1_READINESS.md](governance/V1_READINESS.md)
 - Declaration template: [governance/V1_DECLARATION_TEMPLATE.md](governance/V1_DECLARATION_TEMPLATE.md)
 
