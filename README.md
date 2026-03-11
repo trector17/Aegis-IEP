@@ -101,6 +101,16 @@ Future Aegis updates should be applied intentionally — reviewed, documented as
 
 ---
 
+## Capability Layer (v1.1)
+
+Aegis v1.1 introduces a **Capability Graph** — the abstraction layer between Aegis core, skills, agents, and downstream products. The capability layer defines the platform language of work: every skill, agent, and product integration is described in terms of named, stable capability identifiers.
+
+- [`capabilities/CAPABILITY_MODEL.md`](capabilities/CAPABILITY_MODEL.md) — what capabilities are, node types, and the core-vs-extension model
+- [`capabilities/CAPABILITY_CATALOG.md`](capabilities/CAPABILITY_CATALOG.md) — the initial core capability vocabulary
+- [`capabilities/GRAPH_RULES.md`](capabilities/GRAPH_RULES.md) — allowed relationships, routing principles, and extension rules
+
+---
+
 ## v1.0.0 — Formally Declared Stable
 
 Aegis v1.0.0 is formally declared stable as of 2026-03-09. Aegis-powered product repos may now begin using the bootstrap runbook.
