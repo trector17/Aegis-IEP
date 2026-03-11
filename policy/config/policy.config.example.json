@@ -33,7 +33,9 @@
       "aegis.json",
       "capabilities/CAPABILITY_MODEL.md",
       "capabilities/CAPABILITY_CATALOG.md",
-      "capabilities/GRAPH_RULES.md"
+      "capabilities/GRAPH_RULES.md",
+      "skills/SKILL_SPEC.md",
+      "skills/examples/example-skill/SKILL.md"
     ]
   },
 

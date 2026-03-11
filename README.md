@@ -109,6 +109,11 @@ Aegis v1.1 introduces a **Capability Graph** — the abstraction layer between A
 - [`capabilities/CAPABILITY_CATALOG.md`](capabilities/CAPABILITY_CATALOG.md) — the initial core capability vocabulary
 - [`capabilities/GRAPH_RULES.md`](capabilities/GRAPH_RULES.md) — allowed relationships, routing principles, and extension rules
 
+Aegis v1.1 also adds a governed **Skills System** — the specification standard for packaging capability implementations. Skills are the concrete layer between abstract capabilities and the agents that invoke them.
+
+- [`skills/SKILL_SPEC.md`](skills/SKILL_SPEC.md) — skill specification standard: metadata fields, required sections, folder layout
+- [`skills/examples/example-skill/SKILL.md`](skills/examples/example-skill/SKILL.md) — annotated example demonstrating the standard
+
 ---
 
 ## v1.0.0 — Formally Declared Stable
