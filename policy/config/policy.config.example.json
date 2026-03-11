@@ -30,7 +30,10 @@
       ".gitignore",
       "LICENSE",
       "README.md",
-      "aegis.json"
+      "aegis.json",
+      "capabilities/CAPABILITY_MODEL.md",
+      "capabilities/CAPABILITY_CATALOG.md",
+      "capabilities/GRAPH_RULES.md"
     ]
   },
 

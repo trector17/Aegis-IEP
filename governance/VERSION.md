@@ -29,6 +29,12 @@ Aegis-powered product repos may now begin using the `runbooks/BOOTSTRAP_NEW_PROJ
 
 ---
 
+## Post-v1 Work
+
+Aegis v1.1 work has begun. The first patch (v1.1.0-a) introduces the Capability Graph foundation: a formal model, core capability vocabulary, and graph rules that define the abstraction layer between Aegis core, skills, agents, and downstream products. See `capabilities/` for these artifacts.
+
+---
+
 ## Versioning Notes
 
 **For downstream repos:** Record the Aegis version you adopted at bootstrap time (see `templates/PROJECT_BOOTSTRAP.md` and the adoption runbooks). This creates a clear reference point for any future governance upgrades.
