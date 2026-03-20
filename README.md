@@ -43,6 +43,13 @@ All governance rules are in `governance/`. These documents are version-controlle
 - [governance/PATCH_LOG.md](governance/PATCH_LOG.md) — record of every patch applied
 - [governance/GOVERNANCE_SENSITIVE_FILES.md](governance/GOVERNANCE_SENSITIVE_FILES.md) — files that require explicit documentation when changed
 
+**Dev Engine Doctrine** (expanded enforcement rules):
+
+- [governance/MINIMAL_DIFF.md](governance/MINIMAL_DIFF.md) — full Minimal Diff Doctrine: rules, enforcement, and what minimal diff does not mean
+- [governance/FILE_SCOPE_POLICY.md](governance/FILE_SCOPE_POLICY.md) — file boundary and allowed-touch rules; operationalizes Minimal Diff at file level
+- [governance/DEPENDENCY_POLICY.md](governance/DEPENDENCY_POLICY.md) — dependency change constraints: add/upgrade/downgrade/remove posture and lockfile discipline
+- [governance/REFACTOR_POLICY.md](governance/REFACTOR_POLICY.md) — refactor guardrails: when refactors are permitted, frozen phase prohibition, AI agent posture
+
 ---
 
 ## How Policy Enforcement Works
