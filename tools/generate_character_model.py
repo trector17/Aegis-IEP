@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a stylized 3D surfer character OBJ inspired by provided turnaround art."""
+"""Generate a higher-fidelity stylized surfer character OBJ/MTL + preview render."""
 
 from __future__ import annotations
 
@@ -8,93 +8,46 @@ from pathlib import Path
 import math
 
 
+Vec3 = tuple[float, float, float]
+Face = tuple[int, ...]
+
+
 @dataclass
 class Mesh:
     name: str
     material: str
-    vertices: list[tuple[float, float, float]]
-    faces: list[tuple[int, ...]]
+    vertices: list[Vec3]
+    faces: list[Face]
 
 
-def box(center: tuple[float, float, float], size: tuple[float, float, float], name: str, material: str) -> Mesh:
-    cx, cy, cz = center
-    sx, sy, sz = size
-    x = sx / 2
-    y = sy / 2
-    z = sz / 2
-    verts = [
-        (cx - x, cy - y, cz - z),
-        (cx + x, cy - y, cz - z),
-        (cx + x, cy + y, cz - z),
-        (cx - x, cy + y, cz - z),
-        (cx - x, cy - y, cz + z),
-        (cx + x, cy - y, cz + z),
-        (cx + x, cy + y, cz + z),
-        (cx - x, cy + y, cz + z),
-    ]
-    faces = [
-        (1, 2, 3, 4),
-        (5, 8, 7, 6),
-        (1, 5, 6, 2),
-        (2, 6, 7, 3),
-        (3, 7, 8, 4),
-        (5, 1, 4, 8),
-    ]
-    return Mesh(name, material, verts, faces)
+class Builder:
+    def __init__(self) -> None:
+        self.meshes: list[Mesh] = []
+
+    def add(self, mesh: Mesh) -> None:
+        self.meshes.append(mesh)
 
 
-def cylinder(
-    center: tuple[float, float, float],
-    radius: float,
-    height: float,
-    segments: int,
-    axis: str,
-    name: str,
-    material: str,
-) -> Mesh:
-    cx, cy, cz = center
-    verts: list[tuple[float, float, float]] = []
-    faces: list[tuple[int, ...]] = []
-    h2 = height / 2
-
-    for ring in (-h2, h2):
-        for i in range(segments):
-            a = (2 * math.pi * i) / segments
-            c, s = math.cos(a), math.sin(a)
-            if axis == "y":
-                verts.append((cx + radius * c, cy + ring, cz + radius * s))
-            elif axis == "x":
-                verts.append((cx + ring, cy + radius * c, cz + radius * s))
-            else:
-                verts.append((cx + radius * c, cy + radius * s, cz + ring))
-
-    # side quads
-    for i in range(segments):
-        n = (i + 1) % segments
-        b0 = i + 1
-        b1 = n + 1
-        t1 = segments + n + 1
-        t0 = segments + i + 1
-        faces.append((b0, b1, t1, t0))
-
-    # caps
-    verts.append((cx, cy - h2, cz) if axis == "y" else ((cx - h2, cy, cz) if axis == "x" else (cx, cy, cz - h2)))
-    verts.append((cx, cy + h2, cz) if axis == "y" else ((cx + h2, cy, cz) if axis == "x" else (cx, cy, cz + h2)))
-    bottom_center = len(verts) - 1
-    top_center = len(verts)
-
-    for i in range(segments):
-        n = (i + 1) % segments
-        faces.append((bottom_center, n + 1, i + 1))
-        faces.append((top_center, segments + i + 1, segments + n + 1))
-
-    return Mesh(name, material, verts, faces)
+def translate(verts: list[Vec3], offset: Vec3) -> list[Vec3]:
+    ox, oy, oz = offset
+    return [(x + ox, y + oy, z + oz) for x, y, z in verts]
 
 
-def sphere(center: tuple[float, float, float], radius: float, rings: int, segments: int, name: str, material: str) -> Mesh:
-    cx, cy, cz = center
-    verts: list[tuple[float, float, float]] = []
-    faces: list[tuple[int, ...]] = []
+def rotate_x(verts: list[Vec3], deg: float) -> list[Vec3]:
+    a = math.radians(deg)
+    c, s = math.cos(a), math.sin(a)
+    return [(x, y * c - z * s, y * s + z * c) for x, y, z in verts]
+
+
+def rotate_z(verts: list[Vec3], deg: float) -> list[Vec3]:
+    a = math.radians(deg)
+    c, s = math.cos(a), math.sin(a)
+    return [(x * c - y * s, x * s + y * c, z) for x, y, z in verts]
+
+
+def uv_sphere(radius: float, rings: int, segments: int, name: str, material: str, center: Vec3 = (0, 0, 0)) -> Mesh:
+    verts: list[Vec3] = []
+    faces: list[Face] = []
 
     for r in range(rings + 1):
         v = r / rings
@@ -103,10 +56,8 @@ def sphere(center: tuple[float, float, float], radius: float, rings: int, segmen
         rr = radius * math.sin(phi)
         for s in range(segments):
             u = s / segments
-            theta = 2 * math.pi * u
-            x = rr * math.cos(theta)
-            z = rr * math.sin(theta)
-            verts.append((cx + x, cy + y, cz + z))
+            t = 2 * math.pi * u
+            verts.append((rr * math.cos(t), y, rr * math.sin(t)))
 
     for r in range(rings):
         for s in range(segments):
@@ -117,110 +68,178 @@ def sphere(center: tuple[float, float, float], radius: float, rings: int, segmen
             d = (r + 1) * segments + s + 1
             faces.append((a, b, c, d))
 
-    return Mesh(name, material, verts, faces)
+    return Mesh(name, material, translate(verts, center), faces)
+
+
+def tapered_tube(profile: list[tuple[float, float]], segments: int, name: str, material: str, center: Vec3 = (0, 0, 0)) -> Mesh:
+    """Build revolved mesh from (y, radius) profile."""
+    verts: list[Vec3] = []
+    faces: list[Face] = []
+
+    for y, radius in profile:
+        for i in range(segments):
+            a = 2 * math.pi * i / segments
+            verts.append((radius * math.cos(a), y, radius * math.sin(a)))
+
+    rings = len(profile)
+    for r in range(rings - 1):
+        for i in range(segments):
+            n = (i + 1) % segments
+            a = r * segments + i + 1
+            b = r * segments + n + 1
+            c = (r + 1) * segments + n + 1
+            d = (r + 1) * segments + i + 1
+            faces.append((a, b, c, d))
+
+    return Mesh(name, material, translate(verts, center), faces)
+
+
+def capsule(radius: float, length: float, rings: int, segments: int, axis: str, name: str, material: str, center: Vec3) -> Mesh:
+    h = max(0.0001, length / 2 - radius)
+    profile: list[tuple[float, float]] = []
+
+    for i in range(rings + 1):
+        a = math.pi - (math.pi / 2) * (i / rings)
+        profile.append((-h + radius * math.sin(a), radius * math.cos(a)))
+    profile.append((h, radius))
+    for i in range(1, rings + 1):
+        a = (math.pi / 2) * (i / rings)
+        profile.append((h + radius * math.sin(a), radius * math.cos(a)))
+
+    mesh = tapered_tube(profile, segments, name, material)
+    verts = mesh.vertices
+    if axis == "x":
+        verts = [(y, x, z) for x, y, z in verts]
+    elif axis == "z":
+        verts = [(x, z, y) for x, y, z in verts]
+
+    mesh.vertices = translate(verts, center)
+    return mesh
 
 
 def write_obj(meshes: list[Mesh], obj_path: Path, mtl_name: str) -> None:
-    lines = ["# Stylized surfer character", f"mtllib {mtl_name}"]
-    vertex_offset = 0
+    lines = ["# Surfer character generated mesh", f"mtllib {mtl_name}"]
+    voff = 0
 
     for mesh in meshes:
-        lines.append(f"o {mesh.name}")
-        lines.append(f"usemtl {mesh.material}")
-        for v in mesh.vertices:
-            lines.append(f"v {v[0]:.6f} {v[1]:.6f} {v[2]:.6f}")
-        for face in mesh.faces:
-            shifted = [str(i + vertex_offset) for i in face]
-            lines.append("f " + " ".join(shifted))
-        vertex_offset += len(mesh.vertices)
+        lines += [f"o {mesh.name}", f"usemtl {mesh.material}"]
+        lines += [f"v {x:.6f} {y:.6f} {z:.6f}" for x, y, z in mesh.vertices]
+        for f in mesh.faces:
+            lines.append("f " + " ".join(str(i + voff) for i in f))
+        voff += len(mesh.vertices)
 
     obj_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def write_mtl(mtl_path: Path) -> None:
+def write_mtl(path: Path) -> None:
     mats = {
-        "skin": (0.76, 0.49, 0.30),
-        "shorts": (0.09, 0.49, 0.45),
-        "bandana": (0.05, 0.58, 0.62),
-        "hair": (0.22, 0.13, 0.08),
-        "beard": (0.18, 0.10, 0.06),
-        "tooth": (0.95, 0.95, 0.88),
+        "skin": (0.74, 0.49, 0.31),
+        "hair": (0.22, 0.14, 0.08),
+        "beard": (0.17, 0.10, 0.06),
+        "shorts_base": (0.07, 0.46, 0.45),
+        "shorts_accent": (0.92, 0.68, 0.17),
+        "bandana": (0.07, 0.56, 0.62),
+        "tooth": (0.96, 0.94, 0.86),
+        "cord": (0.10, 0.08, 0.07),
     }
-    lines: list[str] = ["# Materials"]
-    for name, kd in mats.items():
-        lines.extend(
-            [
-                f"newmtl {name}",
-                "Ka 0.050000 0.050000 0.050000",
-                f"Kd {kd[0]:.6f} {kd[1]:.6f} {kd[2]:.6f}",
-                "Ks 0.100000 0.100000 0.100000",
-                "Ns 16.000000",
-                "",
-            ]
-        )
-    mtl_path.write_text("\n".join(lines), encoding="utf-8")
+    lines: list[str] = ["# Surfer materials"]
+    for name, (r, g, b) in mats.items():
+        lines += [
+            f"newmtl {name}",
+            "Ka 0.06 0.06 0.06",
+            f"Kd {r:.6f} {g:.6f} {b:.6f}",
+            "Ks 0.120000 0.120000 0.120000",
+            "Ns 20.0",
+            "",
+        ]
+    path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def build_character() -> list[Mesh]:
-    meshes: list[Mesh] = []
+    b = Builder()
 
-    # Core body
-    meshes.append(box((0, 1.32, 0), (0.52, 0.72, 0.30), "torso", "skin"))
-    meshes.append(cylinder((0, 1.88, 0), 0.18, 0.20, 16, "y", "neck", "skin"))
-    meshes.append(sphere((0, 2.18, 0), 0.24, 10, 16, "head", "skin"))
+    torso_profile = [
+        (0.00, 0.22), (0.10, 0.24), (0.25, 0.25), (0.45, 0.24),
+        (0.64, 0.22), (0.82, 0.19), (0.95, 0.16),
+    ]
+    b.add(tapered_tube(torso_profile, 36, "torso", "skin", center=(0.0, 1.00, 0.0)))
+    b.add(capsule(0.10, 0.20, 6, 24, "y", "neck", "skin", (0.0, 1.98, 0.0)))
+    b.add(uv_sphere(0.23, 16, 30, "head", "skin", center=(0.0, 2.25, 0.0)))
 
-    # Beard volume
-    meshes.append(cylinder((0, 2.00, 0.16), 0.12, 0.14, 12, "y", "beard", "beard"))
+    # chest/abs definition (subtle overlay)
+    for y, r, n in [(1.37, 0.08, "pec_l"), (1.37, 0.08, "pec_r"), (1.20, 0.05, "abs1"), (1.08, 0.05, "abs2")]:
+        x = -0.11 if n.endswith("l") else (0.11 if n.endswith("r") else 0.0)
+        b.add(capsule(r, 0.03, 4, 18, "x", n, "skin", (x, y, 0.18)))
 
-    # Arms
+    # legs
     for side in (-1, 1):
-        sx = 0.36 * side
-        meshes.append(cylinder((sx, 1.56, 0), 0.09, 0.46, 14, "y", f"upper_arm_{'l' if side < 0 else 'r'}", "skin"))
-        meshes.append(cylinder((sx, 1.12, 0), 0.075, 0.44, 14, "y", f"forearm_{'l' if side < 0 else 'r'}", "skin"))
-        meshes.append(sphere((sx, 0.86, 0.02), 0.08, 8, 12, f"hand_{'l' if side < 0 else 'r'}", "skin"))
+        sx = 0.13 * side
+        b.add(capsule(0.105, 0.74, 8, 24, "y", f"thigh_{side}", "skin", (sx, 0.63, 0.0)))
+        b.add(capsule(0.085, 0.60, 8, 24, "y", f"calf_{side}", "skin", (sx, 0.18, -0.01)))
+        foot = capsule(0.065, 0.30, 6, 20, "z", f"foot_{side}", "skin", (sx, -0.13, 0.12))
+        foot.vertices = rotate_x(foot.vertices, -8)
+        b.add(foot)
 
-    # Legs
+    # arms in relaxed A-pose
     for side in (-1, 1):
-        sx = 0.16 * side
-        meshes.append(cylinder((sx, 0.66, 0), 0.11, 0.74, 16, "y", f"thigh_{'l' if side < 0 else 'r'}", "skin"))
-        meshes.append(cylinder((sx, 0.22, 0), 0.09, 0.56, 16, "y", f"calf_{'l' if side < 0 else 'r'}", "skin"))
-        meshes.append(box((sx, -0.08, 0.08), (0.18, 0.07, 0.36), f"foot_{'l' if side < 0 else 'r'}", "skin"))
+        sx = 0.33 * side
+        upper = capsule(0.085, 0.49, 8, 22, "y", f"upper_arm_{side}", "skin", (sx, 1.50, 0.0))
+        upper.vertices = rotate_z(upper.vertices, -12 * side)
+        b.add(upper)
+        fore = capsule(0.072, 0.44, 8, 22, "y", f"forearm_{side}", "skin", (0.38 * side, 1.08, 0.02))
+        fore.vertices = rotate_z(fore.vertices, -9 * side)
+        b.add(fore)
+        b.add(uv_sphere(0.082, 10, 18, f"hand_{side}", "skin", center=(0.43 * side, 0.83, 0.04)))
 
-    # Shorts
-    meshes.append(box((0, 0.95, 0), (0.56, 0.32, 0.34), "shorts_waist", "shorts"))
+    # shorts with color blocks
+    shorts = tapered_tube([(0.00, 0.27), (0.16, 0.28), (0.30, 0.26), (0.42, 0.24)], 36, "shorts", "shorts_base", center=(0.0, 0.78, 0.0))
+    b.add(shorts)
     for side in (-1, 1):
-        sx = 0.16 * side
-        meshes.append(cylinder((sx, 0.78, 0), 0.13, 0.26, 16, "y", f"short_leg_{'l' if side < 0 else 'r'}", "shorts"))
+        b.add(capsule(0.12, 0.24, 6, 22, "y", f"short_leg_{side}", "shorts_base", (0.14 * side, 0.63, 0.0)))
 
-    # Bandana
-    meshes.append(cylinder((0, 2.24, 0), 0.245, 0.10, 16, "y", "bandana", "bandana"))
+    # decorative shorts accents (flower-ish discs)
+    accents = [(-0.10, 0.82, 0.19), (0.08, 0.86, -0.18), (-0.18, 0.71, -0.06), (0.18, 0.76, 0.08)]
+    for i, c in enumerate(accents):
+        b.add(capsule(0.04, 0.01, 3, 14, "z", f"short_accent_{i}", "shorts_accent", c))
 
-    # Dreadlocks (radial back strands)
-    for i in range(11):
-        a = math.radians(200 + i * 14)
-        x = 0.19 * math.cos(a)
-        z = 0.19 * math.sin(a)
-        meshes.append(cylinder((x, 1.94, z), 0.028, 0.58, 8, "y", f"dread_{i}", "hair"))
+    # hair band and beard
+    b.add(capsule(0.23, 0.08, 5, 30, "y", "bandana", "bandana", (0.0, 2.28, 0.0)))
+    beard = capsule(0.11, 0.18, 6, 20, "y", "beard", "beard", (0.0, 2.04, 0.15))
+    beard.vertices = rotate_x(beard.vertices, 10)
+    b.add(beard)
 
-    # Necklace and pendant
-    meshes.append(cylinder((0, 1.82, 0.10), 0.015, 0.40, 12, "x", "necklace", "beard"))
-    meshes.append(cylinder((0, 1.70, 0.22), 0.04, 0.10, 10, "y", "tooth_pendant", "tooth"))
+    # dreadlocks arranged around back scalp
+    for i in range(14):
+        ang = math.radians(160 + i * 14)
+        x = 0.18 * math.cos(ang)
+        z = 0.18 * math.sin(ang)
+        y = 2.18 + 0.02 * math.sin(i)
+        dread = capsule(0.022, 0.56 + 0.04 * math.sin(i * 0.8), 4, 10, "y", f"dread_{i}", "hair", (x, y - 0.27, z))
+        dread.vertices = rotate_x(dread.vertices, 8)
+        b.add(dread)
 
-    return meshes
+    # necklace + pendant tooth
+    b.add(capsule(0.012, 0.42, 4, 16, "x", "necklace", "cord", (0.0, 1.84, 0.10)))
+    pend = capsule(0.036, 0.12, 5, 14, "y", "pendant", "tooth", (0.0, 1.70, 0.22))
+    pend.vertices = rotate_x(pend.vertices, -8)
+    b.add(pend)
+
+    return b.meshes
 
 
 def main() -> None:
-    out_dir = Path(__file__).resolve().parents[1] / "assets" / "3d"
-    out_dir.mkdir(parents=True, exist_ok=True)
+    root = Path(__file__).resolve().parents[1]
+    out = root / "assets" / "3d"
+    out.mkdir(parents=True, exist_ok=True)
 
-    obj_path = out_dir / "surfer_character.obj"
-    mtl_path = out_dir / "surfer_character.mtl"
+    obj = out / "surfer_character.obj"
+    mtl = out / "surfer_character.mtl"
 
-    write_mtl(mtl_path)
-    write_obj(build_character(), obj_path, mtl_path.name)
+    write_mtl(mtl)
+    write_obj(build_character(), obj, mtl.name)
 
-    print(f"Wrote {obj_path}")
-    print(f"Wrote {mtl_path}")
+    print(f"Wrote {obj}")
+    print(f"Wrote {mtl}")
 
 
 if __name__ == "__main__":
