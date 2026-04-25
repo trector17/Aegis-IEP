@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Island Warrior — 3D Character</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#525252;font-family:-apple-system,sans-serif}
+canvas{display:block;touch-action:none}
+#hud{position:fixed;top:0;left:0;right:0;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+#title{color:#fff;font-size:17px;font-weight:700;letter-spacing:3px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+#rotbtn{pointer-events:all;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;color:#fff;padding:6px 14px;font-size:13px;cursor:pointer}
+#rotbtn.on{background:rgba(27,122,122,.45);border-color:#1B7A7A}
+#hint{position:fixed;bottom:14px;left:0;right:0;text-align:center;color:rgba(255,255,255,.5);font-size:12px;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div id="title">ISLAND WARRIOR</div>
+  <button id="rotbtn">⟳ Auto-Rotate</button>
+</div>
+<div id="hint">Drag to rotate · Pinch / scroll to zoom</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/controls/OrbitControls.js';
+
+/* ── Scene ── */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x525252);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const cam = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 100);
+cam.position.set(0, 4, 10);
+
+/* ── Controls ── */
+const ctrl = new OrbitControls(cam, renderer.domElement);
+ctrl.target.set(0, 4, 0);
+ctrl.enableDamping = true;
+ctrl.dampingFactor = 0.07;
+ctrl.minDistance = 3;
+ctrl.maxDistance = 22;
+ctrl.minPolarAngle = 0.05;
+ctrl.maxPolarAngle = Math.PI * 0.9;
+ctrl.update();
+
+document.getElementById('rotbtn').addEventListener('click', function () {
+  ctrl.autoRotate = !ctrl.autoRotate;
+  ctrl.autoRotateSpeed = 1.8;
+  this.classList.toggle('on', ctrl.autoRotate);
+});
+
+/* ── Lights ── */
+scene.add(new THREE.AmbientLight(0xffeedd, 0.52));
+const sun = new THREE.DirectionalLight(0xfff3d0, 1.4);
+sun.position.set(4, 10, 6);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left:-5, right:5, top:11, bottom:-1, near:.5, far:30 });
+sun.shadow.bias = -0.001;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xa0c4ff, 0.38);
+fill.position.set(-5, 3, -4);
+scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffffff, 0.22);
+rim.position.set(0, 5, -9);
+scene.add(rim);
+
+/* ── Ground ── */
+const gnd = new THREE.Mesh(
+  new THREE.PlaneGeometry(20, 20),
+  new THREE.MeshLambertMaterial({ color: 0x787878 })
+);
+gnd.rotation.x = -Math.PI / 2;
+gnd.receiveShadow = true;
+scene.add(gnd);
+
+/* ── Canvas Textures ── */
+function mkShorts() {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 512;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#1B7A7A';
+  g.fillRect(0, 0, 512, 512);
+  function hibiscus(x, y, sz) {
+    g.save(); g.translate(x, y);
+    for (let p = 0; p < 5; p++) {
+      g.save(); g.rotate(p * Math.PI * 0.4 + 0.1);
+      g.fillStyle = '#D4A017';
+      g.beginPath();
+      g.ellipse(0, -sz * .62, sz * .26, sz * .52, 0, 0, Math.PI * 2);
+      g.fill();
+      g.restore();
+    }
+    g.fillStyle = '#FFE066';
+    g.beginPath(); g.arc(0, 0, sz * .16, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#7B5000';
+    g.beginPath(); g.arc(0, 0, sz * .07, 0, Math.PI * 2); g.fill();
+    g.restore();
+  }
+  function leaf(x, y, sz, ang) {
+    g.save(); g.translate(x, y); g.rotate(ang);
+    g.fillStyle = '#0D5A55';
+    g.beginPath(); g.ellipse(0, 0, sz * .14, sz * .38, 0, 0, Math.PI * 2); g.fill();
+    g.restore();
+  }
+  [[80,75],[240,60],[400,78],[158,195],[322,185],
+   [80,312],[240,296],[400,312],[158,415],[322,410],
+   [490,158],[490,382],[14,162],[14,388]
+  ].forEach(([x,y]) => {
+    leaf(x-20, y+18, 38, .35); leaf(x+20, y+18, 38, -.35); leaf(x, y+28, 34, 0);
+    hibiscus(x, y, 38);
+  });
+  return new THREE.CanvasTexture(cv);
+}
+
+function mkBand() {
+  const cv = document.createElement('canvas');
+  cv.width = 256; cv.height = 64;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#1B7A7A'; g.fillRect(0, 0, 256, 64);
+  g.fillStyle = '#D4A017';
+  for (let i = 0; i < 8; i++) {
+    const cx = i * 32 + 16;
+    g.beginPath();
+    g.moveTo(cx, 5); g.lineTo(cx+11, 32); g.lineTo(cx, 59); g.lineTo(cx-11, 32);
+    g.closePath(); g.fill();
+  }
+  g.strokeStyle = '#D4A017'; g.lineWidth = 2.5;
+  g.beginPath(); g.moveTo(0, 2.5); g.lineTo(256, 2.5); g.stroke();
+  g.beginPath(); g.moveTo(0, 61.5); g.lineTo(256, 61.5); g.stroke();
+  return new THREE.CanvasTexture(cv);
+}
+
+/* ── Materials ── */
+const M = {
+  skin:  new THREE.MeshPhongMaterial({ color: 0xC68642, shininess: 22 }),
+  hair:  new THREE.MeshPhongMaterial({ color: 0x1E0900, shininess: 18 }),
+  beard: new THREE.MeshPhongMaterial({ color: 0x1E0900, shininess: 5 }),
+  short: new THREE.MeshPhongMaterial({ map: mkShorts(), shininess: 10 }),
+  band:  new THREE.MeshPhongMaterial({ map: mkBand(),   shininess: 20 }),
+  bead:  new THREE.MeshPhongMaterial({ color: 0xF0EAD6, shininess: 100 }),
+  cord:  new THREE.MeshPhongMaterial({ color: 0x1A1A1A }),
+  eyeW:  new THREE.MeshPhongMaterial({ color: 0xFAFAFA, shininess: 80 }),
+  eyeP:  new THREE.MeshPhongMaterial({ color: 0x0D0500, shininess: 40 }),
+  brow:  new THREE.MeshPhongMaterial({ color: 0x1E0900 }),
+};
+
+/* ── Build Helper ── */
+const CH = new THREE.Group();
+scene.add(CH);
+
+function p(geo, mat, x=0,y=0,z=0, rx=0,ry=0,rz=0, sx=1,sy=1,sz=1) {
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x,y,z);
+  m.rotation.set(rx,ry,rz);
+  m.scale.set(sx,sy,sz);
+  m.castShadow = m.receiveShadow = true;
+  CH.add(m); return m;
+}
+
+/* ══════════════════════════════════════
+   BODY — bottom to top
+   Y reference:
+   feet=0, lower-leg-center=1.11, knee=2.0,
+   upper-thigh=2.44, shorts-center=3.3,
+   waist=4.1, torso-center=5.3,
+   shoulder-top=6.5, neck-center=6.76,
+   head-center=7.38
+══════════════════════════════════════ */
+
+// Feet
+p(new THREE.BoxGeometry(.42,.17,.65), M.skin, -.30,.085,.10);
+p(new THREE.BoxGeometry(.42,.17,.65), M.skin,  .30,.085,.10);
+// Ankle knobs
+p(new THREE.SphereGeometry(.125,8,8), M.skin, -.30,.245,0);
+p(new THREE.SphereGeometry(.125,8,8), M.skin,  .30,.245,0);
+
+// Lower legs (calves)
+p(new THREE.CylinderGeometry(.185,.14,1.72,16), M.skin, -.30,1.11,0);
+p(new THREE.CylinderGeometry(.185,.14,1.72,16), M.skin,  .30,1.11,0);
+
+// Knees
+p(new THREE.SphereGeometry(.205,12,12), M.skin, -.30,2.0,.05);
+p(new THREE.SphereGeometry(.205,12,12), M.skin,  .30,2.0,.05);
+
+// Upper thigh (exposed below shorts)
+p(new THREE.CylinderGeometry(.30,.23,.48,16), M.skin, -.32,2.44,0);
+p(new THREE.CylinderGeometry(.30,.23,.48,16), M.skin,  .32,2.44,0);
+
+// Shorts — radiusTop=0.87 (waist), radiusBottom=1.02 (hips)
+p(new THREE.CylinderGeometry(.87,1.02,1.60,32), M.short, 0,3.30,0);
+
+// Waistband & draw-cord
+p(new THREE.TorusGeometry(.86,.072,8,48), M.cord, 0,4.10,0);
+p(new THREE.CylinderGeometry(.022,.022,.5,6), M.cord, 0,3.96,.88, .35,0,0);
+
+// Torso — radiusTop=1.05 (shoulders), radiusBottom=0.87 (waist)
+p(new THREE.CylinderGeometry(1.05,.87,2.40,32), M.skin, 0,5.30,0);
+
+// Pecs
+p(new THREE.SphereGeometry(.47,16,16), M.skin, -.43,5.62,.27, 0,0,0, 1.12,.83,.62);
+p(new THREE.SphereGeometry(.47,16,16), M.skin,  .43,5.62,.27, 0,0,0, 1.12,.83,.62);
+
+// Abs (3 pairs)
+for (let r=0; r<3; r++) {
+  const ay = 5.38 - r*.34;
+  p(new THREE.SphereGeometry(.16,8,8), M.skin, -.185,ay,.76, 0,0,0, 1,.62,.40);
+  p(new THREE.SphereGeometry(.16,8,8), M.skin,  .185,ay,.76, 0,0,0, 1,.62,.40);
+}
+
+// Shoulders
+p(new THREE.SphereGeometry(.355,16,16), M.skin, -1.20,5.96,0, 0,0,0, 1,1,.86);
+p(new THREE.SphereGeometry(.355,16,16), M.skin,  1.20,5.96,0, 0,0,0, 1,1,.86);
+
+// Upper arms
+p(new THREE.CylinderGeometry(.268,.218,1.55,16), M.skin, -1.42,5.19,0);
+p(new THREE.CylinderGeometry(.268,.218,1.55,16), M.skin,  1.42,5.19,0);
+// Bicep bulge
+p(new THREE.SphereGeometry(.295,12,12), M.skin, -1.44,5.30,.07, 0,0,0, 1,.88,.76);
+p(new THREE.SphereGeometry(.295,12,12), M.skin,  1.44,5.30,.07, 0,0,0, 1,.88,.76);
+
+// Elbows
+p(new THREE.SphereGeometry(.195,12,12), M.skin, -1.42,4.40,0);
+p(new THREE.SphereGeometry(.195,12,12), M.skin,  1.42,4.40,0);
+
+// Forearms
+p(new THREE.CylinderGeometry(.208,.168,1.40,16), M.skin, -1.42,3.68,0);
+p(new THREE.CylinderGeometry(.208,.168,1.40,16), M.skin,  1.42,3.68,0);
+
+// Hands
+p(new THREE.SphereGeometry(.188,10,10), M.skin, -1.42,2.96,0, 0,0,0, 1,1.18,.76);
+p(new THREE.SphereGeometry(.188,10,10), M.skin,  1.42,2.96,0, 0,0,0, 1,1.18,.76);
+
+// Neck
+p(new THREE.CylinderGeometry(.218,.265,.52,16), M.skin, 0,6.76,0);
+
+// Head
+p(new THREE.SphereGeometry(.50,32,32), M.skin, 0,7.38,0, 0,0,0, 1,1.05,.94);
+
+// Jaw
+p(new THREE.BoxGeometry(.80,.30,.68), M.skin, 0,7.08,.06);
+
+// Nose
+p(new THREE.SphereGeometry(.075,8,8), M.skin, 0,7.30,.48, 0,0,0, 1.08,1,1);
+
+// Eyes
+p(new THREE.SphereGeometry(.086,8,8), M.eyeW, -.175,7.42,.44);
+p(new THREE.SphereGeometry(.086,8,8), M.eyeW,  .175,7.42,.44);
+p(new THREE.SphereGeometry(.048,8,8), M.eyeP, -.175,7.42,.48);
+p(new THREE.SphereGeometry(.048,8,8), M.eyeP,  .175,7.42,.48);
+
+// Brows
+p(new THREE.BoxGeometry(.19,.042,.038), M.brow, -.175,7.51,.44, 0,0,.11);
+p(new THREE.BoxGeometry(.19,.042,.038), M.brow,  .175,7.51,.44, 0,0,-.11);
+
+// Ears
+p(new THREE.SphereGeometry(.112,8,8), M.skin, -.49,7.38,0, 0,0,0, 1,1.02,.52);
+p(new THREE.SphereGeometry(.112,8,8), M.skin,  .49,7.38,0, 0,0,0, 1,1.02,.52);
+
+// Beard
+p(new THREE.SphereGeometry(.43,16,16), M.beard, 0,7.06,.12, 0,0,0, .86,.50,.66);
+p(new THREE.BoxGeometry(.24,.062,.072), M.beard, 0,7.22,.47);
+
+// Headband
+p(new THREE.TorusGeometry(.46,.083,8,32), M.band, 0,7.54,0, Math.PI*.18,0,0);
+
+// Top hair mass
+p(new THREE.SphereGeometry(.445,16,16), M.hair, 0,7.62,-.05, 0,0,0, 1.04,.72,1.06);
+
+// Necklace + pendant
+p(new THREE.TorusGeometry(.27,.026,8,32), M.bead, 0,6.54,.11, .32,0,0);
+p(new THREE.SphereGeometry(.062,8,8), M.bead, 0,6.32,.34, 0,0,0, 1,1.45,.58);
+
+/* ── Dreadlocks ── */
+let _s = 13;
+const rnd = () => { _s = (_s * 1664525 + 1013904223) >>> 0; return _s / 4294967296; };
+
+function dread(angle, len, wAmp, wFreq) {
+  const N = 10, sr = 0.43, pts = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    pts.push(new THREE.Vector3(
+      Math.sin(angle) * (sr + t*.14) + Math.sin(t * Math.PI * 2 * wFreq) * wAmp,
+      7.54 - t * len,
+      Math.cos(angle) * (sr + t*.14) + Math.cos(t * Math.PI * 1.7 * wFreq) * wAmp * .6
+    ));
+  }
+  const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 10, .036 + rnd()*.018, 5, false);
+  const m = new THREE.Mesh(tube, new THREE.MeshPhongMaterial({ color: rnd()>.3 ? 0x1E0900 : 0x2D1400, shininess: 22 }));
+  m.castShadow = true;
+  CH.add(m);
+}
+
+// Back and sides (angles 0.3π → 1.7π sweep the back half)
+for (let i = 0; i < 26; i++) {
+  const a = Math.PI * .30 + (i / 26) * Math.PI * 1.40 + rnd() * .18;
+  dread(a, 1.9 + rnd() * 2.4, .035 + rnd() * .05, .7 + rnd() * .7);
+}
+// Extra side lengths
+for (const side of [-1, 1]) {
+  for (let i = 0; i < 4; i++) dread(side * (Math.PI * .55 + i * .12), 2.5 + rnd() * 1.2, .04, .6);
+}
+// Short front-side wisps
+for (let i = 0; i < 5; i++) dread(-.45 + i * .22, .7 + rnd() * .5, .02, .3);
+
+/* ── Resize ── */
+window.addEventListener('resize', () => {
+  cam.aspect = innerWidth / innerHeight;
+  cam.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+/* ── Animate ── */
+let t = 0;
+(function loop() {
+  requestAnimationFrame(loop);
+  t += .008;
+  // gentle breathing
+  CH.scale.y = 1 + Math.sin(t * 1.8) * .004;
+  CH.scale.x = 1 - Math.sin(t * 1.8) * .002;
+  ctrl.update();
+  renderer.render(scene, cam);
+})();
+</script>
+</body>
+</html>
